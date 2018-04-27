@@ -37,27 +37,29 @@ class App extends Component {
       .catch(error=> console.log(error));
   }
 
-
+  
   render() {
     const { repos } = this.state;
     console.log(repos);
     return (
-      <div className="App container">
-      {repos.map((repo) =>  
-        <div key={repo.id} className="mb-2 p-3 repository">
-          <a href={repo.html_url} target="_blank">
-            <div>
-              <h1 className="repo-name mb-1">{repo.name}</h1>
-              <span>{repo.owner.login}</span>
-              <div className="float-right mt-2">
-                <span className="ml-2"><i class="fas fa-star"></i>{repo.stargazers_count}</span>
-                <span className="ml-2"><i class="fas fa-code-branch"></i>{repo.forks_count}</span>
+      <div className="App">
+      <div className="">
+        {repos.map((repo) =>  
+          <div key={repo.id} className="p-4 repository">
+            <a href={repo.html_url} target="_blank">
+              <div>
+                <h1 className="repo-name mb-2">{repo.name}</h1>
+                <span className="repo-owner ml-2">{repo.owner.login}</span>
+                <div className="float-right mt-3">
+                  <span><i class="fas fa-star"></i> {repo.stargazers_count}</span>
+                  <span className="ml-3"><i class="fas fa-code-branch"></i> {repo.forks_count}</span>
+                </div>
               </div>
-            </div>
-            <div className="repo-desc">{repo.description}</div>
-          </a>
+              <div className="repo-desc">{repo.description}</div>
+            </a>
+          </div>
+        )}
         </div>
-      )}
       </div>
     )
   }

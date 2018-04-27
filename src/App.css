@@ -1,8 +1,21 @@
+.App{
+	width:700px;
+	margin-left: auto;
+	margin-right:auto;
+}
 .repository{
-	
+	border-bottom: #e0e0e0 1px solid;
+}
+.repository:hover{
+    /*box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;*/
+    background-color: #f7f7f7;
 }
 
 .repo-name{
 	display: inline-block;
 	font-weight: 500;
+}
+
+.repo-owner{
+	color:darkgray;
 }
