@@ -23,20 +23,36 @@ const QUERY_CONDITION='&sort=stars&order=desc';
 const QUERY_PAGE =  '&page=';
 const QUERY_PP = '&per_page=10';
 
-const TopicList = ({topics})=>
+const TopicList = ({topics, onTopicClick})=>
   <div className="topicList">
-    {topics.map((topic)=> <Topic key={topic.name} topic={topic}></Topic> )}
+    {topics.map((topic)=> 
+      <Topic 
+        key={topic.name} 
+        topic={topic}
+        onClick={onTopicClick}
+      ></Topic> )}
   </div>
 
-const Topic = ({topic})=>
-  <div className="p-4 topic">
-    <a href={topic.html_url} target="_blank">
-      <div>
-        <h1 className="topic-name mb-2">{topic.display_name}</h1> 
+class Topic extends Component{
+  constructor(props){
+    super(props);
+  }
+
+  render(){
+    const {topic, onClick} = this.props;
+
+    return (
+      <div className="p-4 topic">
+        <a href='#' onClick={()=>onClick(topic.name)}>
+          <div>
+            <h1 className="topic-name mb-2">{topic.display_name}</h1> 
+          </div>
+          <div className="topic-desc">{topic.short_description}</div>
+        </a>
       </div>
-      <div className="topic-desc">{topic.short_description}</div>
-    </a>
-  </div>
+    )
+  }
+}
 
 const Repository = ({repo}) => 
   <div className="p-4 repository">
@@ -63,19 +79,20 @@ class App extends Component {
     super(props);
     this.state={
       repos:[],
-      language:DEFAULT_LANGUAGE,
-      page:1,
       topics:[],
+      topic:'',
+      topic_page:1,
+      repo_page:1,
     }
 
     this.getHotRepository = this.getHotRepository.bind(this);
     this.onLoadClick = this.onLoadClick.bind(this);
     this.getTopics = this.getTopics.bind(this);
+    this.onTopicClick = this.onTopicClick.bind(this);
   }
 
   componentWillMount() {
     this.getTopics();
-    this.getHotRepository(this.state.page);
   }
 
   getTopics(){
@@ -110,24 +127,31 @@ class App extends Component {
     this.setState({ page: page+1 })
     this.getHotRepository(page+1);  
   }
-  
+  onTopicClick(topicName){
+    this.setState({topic:topicName});
+  }
   render() {
     const { repos, page, topics } = this.state;
     return (
-      <div className="App container">
-        <div className="col-md-4">
-          {
-            topics.length !== 0 &&
-            <TopicList topics={topics}></TopicList>
-          }
-        </div>
-        <div className="col-md-8">
-          {
-            repos.length !== 0 &&
-            <RepositoryList repos={repos}></RepositoryList>
-          }
-          
-          <button onClick={this.onLoadClick}>Load more</button>
+      <div className="App container-fluid">
+        <div className="row">
+          <div className="col-md-3">
+            {
+              topics.length !== 0 &&
+              <TopicList 
+                topics={topics}
+                onTopicClick={this.onTopicClick}
+              ></TopicList>
+            }
+          </div>
+          <div className="col-md-9">
+            {
+              repos.length !== 0 &&
+              <RepositoryList repos={repos}></RepositoryList>
+            }
+            
+            <button onClick={this.onLoadClick}>Load more</button>
+          </div>
         </div>
       </div>
     )
