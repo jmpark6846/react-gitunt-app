@@ -13,15 +13,18 @@ topic
 지난주 업데이트
 가장 starred
 */
+//https://api.github.com/search/repositories?q=topic:ruby+topic:rails
+
 const BASE_URL = 'https://api.github.com/search';
 const QUERY_REPOSITORY = '/repositories'
 const QUERY_TOPIC = '/topics'
 const QUERY_ISFEATURED = '?q=is:featured+is:curated+repositories:>1000';
-const QUERY_LANGUAGE='?q=language:';
+const QUERY_BY_TOPIC='?q=topic:';
 const DEFAULT_LANGUAGE='javascript';
 const QUERY_CONDITION='&sort=stars&order=desc';
 const QUERY_PAGE =  '&page=';
-const QUERY_PP = '&per_page=10';
+const QUERY_PP = '&per_page=';
+const QUERY_PP_DIGIT = '10';
 
 const TopicList = ({topics, onTopicClick})=>
   <div className="topicList">
@@ -33,26 +36,17 @@ const TopicList = ({topics, onTopicClick})=>
       ></Topic> )}
   </div>
 
-class Topic extends Component{
-  constructor(props){
-    super(props);
-  }
 
-  render(){
-    const {topic, onClick} = this.props;
-
-    return (
-      <div className="p-4 topic">
-        <a href='#' onClick={()=>onClick(topic.name)}>
-          <div>
-            <h1 className="topic-name mb-2">{topic.display_name}</h1> 
-          </div>
-          <div className="topic-desc">{topic.short_description}</div>
-        </a>
+const Topic = ({topic, onClick})=>
+  <div className="p-4 topic">
+    <a href='#' onClick={()=>onClick(topic.name)}>
+      <div>
+        <h1 className="topic-name mb-2">{topic.display_name}</h1> 
       </div>
-    )
-  }
-}
+      <div className="topic-desc">{topic.short_description}</div>
+    </a>
+  </div>
+  
 
 const Repository = ({repo}) => 
   <div className="p-4 repository">
@@ -69,10 +63,12 @@ const Repository = ({repo}) =>
     </a>
   </div>
 
+
 const RepositoryList = ({repos}) => 
   <div className="repositoryList">
     {repos.map((repo) => <Repository key={repo.id}  repo={repo}></Repository> )}
   </div>
+
 
 class App extends Component {
   constructor(props){
@@ -81,8 +77,8 @@ class App extends Component {
       repos:[],
       topics:[],
       topic:'',
-      topic_page:1,
-      repo_page:1,
+      topicPage:1,
+      repoPage:1,
     }
 
     this.getHotRepository = this.getHotRepository.bind(this);
@@ -111,27 +107,31 @@ class App extends Component {
       .catch(error=>console.log(error));
   }
 
-  getHotRepository(page){
-    const { repos, language } = this.state;
-    const GITHUB_URL = `${BASE_URL}${QUERY_REPOSITORY}${QUERY_LANGUAGE}${language}${QUERY_CONDITION}${QUERY_PAGE}${page}${QUERY_PP}`;
+  getHotRepository(topic, repoPage){
+    const REPOSITORY_QUERY_URL = `${BASE_URL}${QUERY_REPOSITORY}${QUERY_BY_TOPIC}${topic}${QUERY_CONDITION}${QUERY_PAGE}${repoPage}${QUERY_PP}${QUERY_PP_DIGIT}`
 
-    
-    axios.get(GITHUB_URL)
+    axios.get(REPOSITORY_QUERY_URL)
       .then(response=>{
         this.setState((prevState)=>{ return { repos: [...prevState.repos, ...response.data.items]}})
       })
       .catch(error=> console.log(error));
   }
+
   onLoadClick(){
-    const { page } = this.state;
-    this.setState({ page: page+1 })
-    this.getHotRepository(page+1);  
+    const { repoPage, topic } = this.state;
+    this.setState({ repoPage: repoPage+1 })
+    this.getHotRepository(topic, repoPage+1);  
   }
+
   onTopicClick(topicName){
-    this.setState({topic:topicName});
+    const { topic } = this.state;
+
+    // 토픽을 누르면 항상 해당 토픽의 레포지터리 첫페이지를 들고온다.
+    this.setState({topic:topicName, repoPage:1, repos:[]});
+    this.getHotRepository(topicName, 1);
   }
   render() {
-    const { repos, page, topics } = this.state;
+    const { repos, topics } = this.state;
     return (
       <div className="App container-fluid">
         <div className="row">
