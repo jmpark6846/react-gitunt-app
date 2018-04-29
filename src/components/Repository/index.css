@@ -1,0 +1,28 @@
+.repository{
+	border-bottom: #e0e0e0 1px solid;
+}
+.repository:hover{
+    /*box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;*/
+    background-color: #f7f7f7;
+}
+.repo-desc{
+    font-size: 14px;
+}
+.repo-name{
+	display: inline-block;
+	font-weight: 500;
+}
+
+.repo-owner{
+	color:darkgray;
+}
+.repo-info-wrapper{
+	margin-top: 8px;
+}
+.repo-star, .repo-fork{
+	font-size: 14px;
+	color:darkslategray;
+	width:15%;
+	display: inline-block;
+
+}

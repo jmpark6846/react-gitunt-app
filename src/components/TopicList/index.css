@@ -1,0 +1,12 @@
+.topic-list{
+	
+	overflow-x: auto;
+/* Firefox */
+  height: -moz-calc(100% - 115px);
+  /* WebKit */
+  height: -webkit-calc(100% - 115px);
+  /* Opera */
+  height: -o-calc(100% - 115px);
+  /* Standard */
+  height: 100%;/*calc(100% - 115px);   */
+}
