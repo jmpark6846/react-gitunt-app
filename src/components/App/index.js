@@ -62,7 +62,11 @@ class App extends Component {
 
     axios.get(REPOSITORY_QUERY_URL)
       .then(response=>{
-        this.setState((prevState)=>{ return { repos: [...prevState.repos, ...response.data.items], isRepoLoading: false}})
+        // 토픽을 한번에 여러번 클릭할 경우: 비동기로 같은 결과가 repo에 여러번 추가됨을 막기 위해
+        if(repoPage === 1)
+          this.setState({ repos: [...response.data.items], isRepoLoading: false})
+        else
+          this.setState((prevState)=>{ return { repos: [...prevState.repos, ...response.data.items], isRepoLoading: false}})
       })
       .catch(error=> console.log(error));
   }
@@ -80,10 +84,10 @@ class App extends Component {
   }
 
   onTopicClick(topicName){
-    // TODO : 토픽 한번에 여러번 클릭시 비동기 응답들로 인해 같은 결과가 여러번 추가될 수 있음. async await 구문 추가로 막기.
-    
+    // TODO : 토픽 한번에 여러번 클릭시 비동기 응답들로 인해 같은 결과가 여러번 추가될 수 있음.
+  
     // 토픽을 누르면 항상 해당 토픽의 레포지터리 첫페이지를 들고온다.
-    this.setState({topic:topicName, repoPage:1, repos:[]});
+    this.setState({topic:topicName, repoPage:1});
     this.getHotRepository(topicName, 1);
   }
 
