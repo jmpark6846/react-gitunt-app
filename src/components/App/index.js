@@ -15,6 +15,7 @@ import {
   QUERY_PP_DIGIT,
 } from '../../constants/'
 import './index.css';
+
 const ButtonWithLoading = ({isLoading, onClick, children})=>{ 
   return (
     !isLoading ?                    
@@ -22,6 +23,7 @@ const ButtonWithLoading = ({isLoading, onClick, children})=>{
     :
     <span>Loading...</span>
   )}
+
 class App extends Component {
   constructor(props){
     super(props);
@@ -105,11 +107,11 @@ class App extends Component {
                   onTopicClick={this.onTopicClick}
                 ></TopicList>
                 <div className="my-2">
-                  { !isTopicLoading ?
-                    <Button onClick={this.onTopicLoadClick}>Load</Button> 
-                    :
-                    <span >Loading...</span>
-                  }
+                  <ButtonWithLoading 
+                      isLoading={isTopicLoading} 
+                      onClick={this.onTopicLoadClick}>
+                      Load more
+                    </ButtonWithLoading>
                 </div>
               </div>
             }
@@ -120,11 +122,11 @@ class App extends Component {
                 <div>
                   <RepositoryList repos={repos}></RepositoryList>
                   <div className="my-2">
-                    { !isRepoLoading ?                    
-                        <Button onClick={this.onRepositoryLoadClick}>Load</Button>
-                      :
-                        <span >Loading...</span>
-                    }
+                    <ButtonWithLoading 
+                      isLoading={isRepoLoading} 
+                      onClick={this.onRepositoryLoadClick}>
+                      Load more
+                    </ButtonWithLoading>
                   </div>
                 </div>
               )
