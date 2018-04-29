@@ -1,6 +1,17 @@
+html, body{
+	overflow: hidden;
+}
+html, body, #root, .App, .row{
+	height:100%;
+}
+
 .App{
 	margin-left: auto;
 	margin-right:auto;
+}
+.repository-list{
+    border-right: 1px solid #e0e0e0;
+    overflow-x: auto;
 }
 .repository{
 	border-bottom: #e0e0e0 1px solid;
@@ -9,7 +20,9 @@
     /*box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;*/
     background-color: #f7f7f7;
 }
-
+.repo-desc{
+    font-size: 14px;
+}
 .repo-name{
 	display: inline-block;
 	font-weight: 500;
@@ -17,4 +30,37 @@
 
 .repo-owner{
 	color:darkgray;
+}
+.repo-info-wrapper{
+	margin-top: 8px;
+}
+.repo-star, .repo-fork{
+	font-size: 14px;
+	color:darkslategray;
+	width:15%;
+	display: inline-block;
+
+}
+.load-btn{
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
+
+.topic-list{
+	
+	overflow-x: auto;
+/* Firefox */
+  height: -moz-calc(100% - 115px);
+  /* WebKit */
+  height: -webkit-calc(100% - 115px);
+  /* Opera */
+  height: -o-calc(100% - 115px);
+  /* Standard */
+  height: 100%;/*calc(100% - 115px);   */
+}
+
+.topic-description{
+	font-size: 14px;
+	color:darkslategray;
 }

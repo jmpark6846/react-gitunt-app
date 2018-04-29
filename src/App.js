@@ -1,33 +1,21 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import './App.css';
-/*
-Search
-RepoList
-  Repository  
-  Repository
-  Repository
-
-
-topic 
-지난주 업데이트
-가장 starred
-*/
-//https://api.github.com/search/repositories?q=topic:ruby+topic:rails
+import { topicsData } from './constants';
 
 const BASE_URL = 'https://api.github.com/search';
 const QUERY_REPOSITORY = '/repositories'
 const QUERY_TOPIC = '/topics'
 const QUERY_ISFEATURED = '?q=is:featured+is:curated+repositories:>1000';
 const QUERY_BY_TOPIC='?q=topic:';
-const DEFAULT_LANGUAGE='javascript';
 const QUERY_CONDITION='&sort=stars&order=desc';
 const QUERY_PAGE =  '&page=';
 const QUERY_PP = '&per_page=';
 const QUERY_PP_DIGIT = '10';
 
+
 const TopicList = ({topics, onTopicClick})=>
-  <div className="topicList">
+  <div>
     {topics.map((topic)=> 
       <Topic 
         key={topic.name} 
@@ -41,31 +29,33 @@ const Topic = ({topic, onClick})=>
   <div className="p-4 topic">
     <a href='#' onClick={()=>onClick(topic.name)}>
       <div>
-        <h1 className="topic-name mb-2">{topic.display_name}</h1> 
+        <h3 className="topic-name mb-2">{topic.display_name}</h3> 
       </div>
-      <div className="topic-desc">{topic.short_description}</div>
+      <div className="topic-description">{topic.short_description}</div>
     </a>
   </div>
   
 
 const Repository = ({repo}) => 
-  <div className="p-4 repository">
+  <div className="p-3 repository">
     <a href={repo.html_url} target="_blank">
       <div>
-        <h1 className="repo-name mb-2">{repo.name}</h1>
-        <span className="repo-owner ml-2">{repo.owner.login}</span>
-        <div className="float-right mt-3">
-          <span><i className="fas fa-star"></i> {repo.stargazers_count}</span>
-          <span className="ml-3"><i className="fas fa-code-branch"></i> {repo.forks_count}</span>
+        <div>
+          <h3 className="repo-name mb-2">{repo.name}</h3>
+          <span className="repo-owner ml-2">{repo.owner.login}</span>
         </div>
       </div>
       <div className="repo-desc">{repo.description}</div>
+      <div className="repo-info-wrapper">
+        <div className="repo-star"><i className="fas fa-star"></i> {repo.stargazers_count}</div>
+        <div className="repo-fork"><i className="fas fa-code-branch"></i> {repo.forks_count}</div>
+      </div>
     </a>
   </div>
 
 
 const RepositoryList = ({repos}) => 
-  <div className="repositoryList">
+  <div>
     {repos.map((repo) => <Repository key={repo.id}  repo={repo}></Repository> )}
   </div>
 
@@ -79,6 +69,7 @@ class App extends Component {
       topic:'',
       topicPage:1,
       repoPage:1,
+      isRepoLoading:false,
     }
 
     this.getHotRepository = this.getHotRepository.bind(this);
@@ -87,24 +78,25 @@ class App extends Component {
     this.onTopicClick = this.onTopicClick.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.getTopics();
   }
 
   getTopics(){
-    const { page } = this.state;
-    const TOPICS_URL = `${BASE_URL}${QUERY_TOPIC}${QUERY_ISFEATURED}${QUERY_PAGE}`;
-    axios({
-      url: TOPICS_URL,
-      method: 'get',
-      headers: {
-        'Accept': 'application/vnd.github.mercy-preview+json'
-      }})
-      .then(response=>{
-        console.log(response.data.items);
-        this.setState({topics: response.data.items})
-      })
-      .catch(error=>console.log(error));
+    // const { page } = this.state;
+    // const TOPICS_URL = `${BASE_URL}${QUERY_TOPIC}${QUERY_ISFEATURED}${QUERY_PAGE}`;
+    // axios({
+    //   url: TOPICS_URL,
+    //   method: 'get',
+    //   headers: {
+    //     'Accept': 'application/vnd.github.mercy-preview+json'
+    //   }})
+    //   .then(response=>{
+    //     console.log(response.data.items);
+    //     this.setState({topics: response.data.items})
+    //   })
+    //   .catch(error=>console.log(error)); // TODO : 사용 한도 초과시 403 에러 발생. 에러 처리 추가 필요.
+    this.setState( { topics: topicsData });
   }
 
   getHotRepository(topic, repoPage){
@@ -125,18 +117,20 @@ class App extends Component {
 
   onTopicClick(topicName){
     const { topic } = this.state;
-
+    // TODO : 토픽 한번에 여러번 클릭시 비동기 응답들로 인해 같은 결과가 여러번 추가될 수 있음. async await 구문 추가로 막기.
+    
     // 토픽을 누르면 항상 해당 토픽의 레포지터리 첫페이지를 들고온다.
     this.setState({topic:topicName, repoPage:1, repos:[]});
     this.getHotRepository(topicName, 1);
   }
   render() {
-    const { repos, topics } = this.state;
+    const { repos, topics, isRepoLoading } = this.state;
+    console.log(repos);
     return (
       <div className="App container-fluid">
         <div className="row">
-          <div className="col-md-3">
-            {
+          <div className="col-md-3 topic-list">
+            { 
               topics.length !== 0 &&
               <TopicList 
                 topics={topics}
@@ -144,13 +138,17 @@ class App extends Component {
               ></TopicList>
             }
           </div>
-          <div className="col-md-9">
+          <div className="col-md-9 repository-list">
             {
-              repos.length !== 0 &&
-              <RepositoryList repos={repos}></RepositoryList>
+              repos.length !== 0 && (
+                <div>
+                  <RepositoryList repos={repos}></RepositoryList>
+                  <div className="mt-2">
+                    <button className="btn btn-default load-btn" onClick={this.onLoadClick}>Load</button>       
+                  </div>
+                </div>
+              )
             }
-            
-            <button onClick={this.onLoadClick}>Load more</button>
           </div>
         </div>
       </div>
