@@ -3,7 +3,7 @@ import './index.css';
 
 const Button = ({onClick, children})=>
   <button 
-    className="btn btn-default load-btn" 
+    className="btn btn-primary load-btn" 
     onClick={onClick}>
     {children}
   </button>

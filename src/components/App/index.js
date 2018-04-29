@@ -29,6 +29,8 @@ class App extends Component {
       repoPage:1,
       isTopicLoading:false,
       isRepoLoading:false,
+      error:false,
+      errorMsg:'',
     }
 
     this.getHotRepository = this.getHotRepository.bind(this);
@@ -53,7 +55,7 @@ class App extends Component {
       .then(response=>{
         this.setState((prevState)=> { return { topics: [...prevState.topics, ...response.data.items], isTopicLoading: false}})
       })
-      .catch(error=>console.log(error)); // TODO : 사용 한도 초과시 403 에러 발생. 에러 처리 추가 필요.
+      .catch(error=> this.setState({ isTopicLoading: false, error:true, errorMsg: "Github API 사용 한도 초과로 이용이 잠시 제한되었습니다."})); // TODO : 사용 한도 초과시 403 에러 발생. 에러 처리 추가 필요.
     // this.setState( { topics: topicsData });
   }
 
@@ -63,12 +65,13 @@ class App extends Component {
     axios.get(REPOSITORY_QUERY_URL)
       .then(response=>{
         // 토픽을 한번에 여러번 클릭할 경우: 비동기로 같은 결과가 repo에 여러번 추가됨을 막기 위해
+        console.log(response)
         if(repoPage === 1)
-          this.setState({ repos: [...response.data.items], isRepoLoading: false})
+          this.setState({ repos: [...response.data.items], error:false, isRepoLoading: false})
         else
-          this.setState((prevState)=>{ return { repos: [...prevState.repos, ...response.data.items], isRepoLoading: false}})
+          this.setState((prevState)=>{ return { repos: [...prevState.repos, ...response.data.items], error:false, isRepoLoading: false}})
       })
-      .catch(error=> console.log(error));
+      .catch(error=> this.setState({ isRepoLoading:false, error:true, errorMsg: "Github API 사용 한도 초과로 이용이 잠시 제한되었습니다."}));
   }
 
   onRepositoryLoadClick(){
@@ -84,15 +87,13 @@ class App extends Component {
   }
 
   onTopicClick(topicName){
-    // TODO : 토픽 한번에 여러번 클릭시 비동기 응답들로 인해 같은 결과가 여러번 추가될 수 있음.
-  
     // 토픽을 누르면 항상 해당 토픽의 레포지터리 첫페이지를 들고온다.
     this.setState({topic:topicName, repoPage:1});
     this.getHotRepository(topicName, 1);
   }
 
   render() {
-    const { repos, topics, isTopicLoading, isRepoLoading } = this.state;
+    const { repos, topics, isTopicLoading, isRepoLoading, error, errorMsg } = this.state;
     return (
       <div className="App container-fluid">
         <div className="row">
@@ -106,10 +107,15 @@ class App extends Component {
                 ></TopicList>
                 <div className="my-2">
                   <ButtonWithLoading 
-                      isLoading={isTopicLoading} 
-                      onClick={this.onTopicLoadClick}>
-                      Load
-                    </ButtonWithLoading>
+                    isLoading={isTopicLoading} 
+                    onClick={this.onTopicLoadClick}>
+                    Load
+                  </ButtonWithLoading>
+                  { error &&
+                    <div className="mt-2 alert alert-danger" role="alert">
+                      {errorMsg}
+                    </div>
+                  }
                 </div>
               </div>
             }
@@ -125,6 +131,11 @@ class App extends Component {
                       onClick={this.onRepositoryLoadClick}>
                       More repository please!
                     </ButtonWithLoading>
+                    { error &&
+                      <div className="mt-2 alert alert-danger" role="alert">
+                        {errorMsg}
+                      </div>
+                    }
                   </div>
                 </div>
               )
