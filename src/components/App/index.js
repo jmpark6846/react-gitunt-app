@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import axios from 'axios';
 import TopicList from '../TopicList';
 import RepositoryList from '../RepositoryList';
-import Button from '../Button';
+import { ButtonWithLoading } from '../Button';
 import { 
   BASE_URL, 
   QUERY_REPOSITORY,
@@ -16,13 +16,7 @@ import {
 } from '../../constants/'
 import './index.css';
 
-const ButtonWithLoading = ({isLoading, onClick, children})=>{ 
-  return (
-    !isLoading ?                    
-    <Button onClick={onClick}>{children}</Button>
-    :
-    <span>Loading...</span>
-  )}
+
 
 class App extends Component {
   constructor(props){
@@ -99,7 +93,7 @@ class App extends Component {
       <div className="App container-fluid">
         <div className="row">
           <div className="col-md-3 topic-list">
-            { // TODO : 버튼 로딩 부분을 컴포넌트로 리팩토링
+            { // TODO : 레포지터리 리스트 스타/포크/업데이트날짜 순으로 정렬
               topics.length !== 0 &&
               <div>
                 <TopicList 
@@ -110,7 +104,7 @@ class App extends Component {
                   <ButtonWithLoading 
                       isLoading={isTopicLoading} 
                       onClick={this.onTopicLoadClick}>
-                      Load more
+                      Load
                     </ButtonWithLoading>
                 </div>
               </div>
@@ -125,7 +119,7 @@ class App extends Component {
                     <ButtonWithLoading 
                       isLoading={isRepoLoading} 
                       onClick={this.onRepositoryLoadClick}>
-                      Load more
+                      More repository please!
                     </ButtonWithLoading>
                   </div>
                 </div>

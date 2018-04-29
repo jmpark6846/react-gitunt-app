@@ -8,4 +8,13 @@ const Button = ({onClick, children})=>
     {children}
   </button>
 
+const ButtonWithLoading = ({isLoading, onClick, children})=>{ 
+  return (
+    !isLoading ?                    
+    <Button onClick={onClick}>{children}</Button>
+    :
+    <span>Loading...</span>
+  )}
+
+export { ButtonWithLoading };
 export default Button;
