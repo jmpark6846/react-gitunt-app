@@ -75,6 +75,7 @@ class App extends Component {
     this.getHotRepository = this.getHotRepository.bind(this);
     this.onLoadClick = this.onLoadClick.bind(this);
     this.getTopics = this.getTopics.bind(this);
+    this.onTopicLoadClick = this.onTopicLoadClick.bind(this);
     this.onTopicClick = this.onTopicClick.bind(this);
   }
 
@@ -82,21 +83,19 @@ class App extends Component {
     this.getTopics();
   }
 
-  getTopics(){
-    // const { page } = this.state;
-    // const TOPICS_URL = `${BASE_URL}${QUERY_TOPIC}${QUERY_ISFEATURED}${QUERY_PAGE}`;
-    // axios({
-    //   url: TOPICS_URL,
-    //   method: 'get',
-    //   headers: {
-    //     'Accept': 'application/vnd.github.mercy-preview+json'
-    //   }})
-    //   .then(response=>{
-    //     console.log(response.data.items);
-    //     this.setState({topics: response.data.items})
-    //   })
-    //   .catch(error=>console.log(error)); // TODO : 사용 한도 초과시 403 에러 발생. 에러 처리 추가 필요.
-    this.setState( { topics: topicsData });
+  getTopics(topicPage){
+    const TOPICS_URL = `${BASE_URL}${QUERY_TOPIC}${QUERY_ISFEATURED}${QUERY_PAGE}${topicPage}`;
+    axios({
+      url: TOPICS_URL,
+      method: 'get',
+      headers: {
+        'Accept': 'application/vnd.github.mercy-preview+json'
+      }})
+      .then(response=>{
+        this.setState((prevState)=> { return { topics: [...prevState.topics, ...response.data.items]}})
+      })
+      .catch(error=>console.log(error)); // TODO : 사용 한도 초과시 403 에러 발생. 에러 처리 추가 필요.
+    // this.setState( { topics: topicsData });
   }
 
   getHotRepository(topic, repoPage){
@@ -114,7 +113,12 @@ class App extends Component {
     this.setState({ repoPage: repoPage+1 })
     this.getHotRepository(topic, repoPage+1);  
   }
-
+  onTopicLoadClick(){
+    const { topicPage } = this.state;
+    this.setState({ topicPage : topicPage+1 });
+    this.getTopics( topicPage+1 );
+  }
+  
   onTopicClick(topicName){
     const { topic } = this.state;
     // TODO : 토픽 한번에 여러번 클릭시 비동기 응답들로 인해 같은 결과가 여러번 추가될 수 있음. async await 구문 추가로 막기.
@@ -123,6 +127,7 @@ class App extends Component {
     this.setState({topic:topicName, repoPage:1, repos:[]});
     this.getHotRepository(topicName, 1);
   }
+
   render() {
     const { repos, topics, isRepoLoading } = this.state;
     console.log(repos);
@@ -132,10 +137,15 @@ class App extends Component {
           <div className="col-md-3 topic-list">
             { 
               topics.length !== 0 &&
-              <TopicList 
-                topics={topics}
-                onTopicClick={this.onTopicClick}
-              ></TopicList>
+              <div>
+                <TopicList 
+                  topics={topics}
+                  onTopicClick={this.onTopicClick}
+                ></TopicList>
+                <div className="my-2">
+                  <Button onClick={this.onTopicLoadClick}>Load</Button>
+                </div>
+              </div>
             }
           </div>
           <div className="col-md-9 repository-list">
@@ -143,8 +153,8 @@ class App extends Component {
               repos.length !== 0 && (
                 <div>
                   <RepositoryList repos={repos}></RepositoryList>
-                  <div className="mt-2">
-                    <button className="btn btn-default load-btn" onClick={this.onLoadClick}>Load</button>       
+                  <div className="my-2">
+                    <Button onClick={this.onLoadClick}>Load</Button>
                   </div>
                 </div>
               )
@@ -156,3 +166,10 @@ class App extends Component {
   }
 }
 export default App;
+
+const Button = ({onClick, children})=>
+  <button 
+    className="btn btn-default load-btn" 
+    onClick={onClick}>
+    {children}
+  </button>
